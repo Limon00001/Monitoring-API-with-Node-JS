@@ -4,13 +4,15 @@
 */
 
 // Dependencies
-const {sampleHandler} = require('./handlers/routeHandlers/sampleHandler');
-const {userHandler} = require('./handlers/routeHandlers/userHandler');
+const { sampleHandler } = require("./handlers/routeHandlers/sampleHandler");
+const { userHandler } = require("./handlers/routeHandlers/userHandler");
+const { tokenHandler } = require("./handlers/routeHandlers/tokenHandler");
 
 // App Object - Module Scaffolding
 const routes = {
-    sample: sampleHandler,
-    user: userHandler,
+  sample: sampleHandler,
+  user: userHandler,
+  token: tokenHandler,
 };
 
 // Exports module

@@ -5,6 +5,7 @@
 // dependencies
 const data = require("../../lib/data");
 const { hash, parseJSON } = require("../../helpers/utilities");
+const tokenHandler = require("./tokenHandler");
 
 // App Object - Module Scaffolding
 const handler = {};
@@ -102,16 +103,30 @@ handler._users.get = (requestProperties, callback) => {
       : false;
 
   if (phone) {
-    // lookup the user
-    data.read("users", phone, (err, user) => {
-      //   const user = { ...parseJSON(u) };
-      if (!err && user) {
-        delete user.password;
+    // verify token
+    let token =
+      typeof requestProperties.headersObject.token === "string"
+        ? requestProperties.headersObject.token
+        : false;
 
-        callback(200, user);
+    tokenHandler._token.verify(token, phone, (tokenId) => {
+      if (tokenId) {
+        // lookup the user
+        data.read("users", phone, (err, user) => {
+          //   const user = { ...parseJSON(u) };
+          if (!err && user) {
+            delete user.password;
+
+            callback(200, user);
+          } else {
+            callback(404, {
+              error: "User not found!",
+            });
+          }
+        });
       } else {
-        callback(404, {
-          error: "User not found!",
+        callback(403, {
+          message: "Authentication failed!",
         });
       }
     });
@@ -151,31 +166,45 @@ handler._users.put = (requestProperties, callback) => {
 
   if (phone) {
     if (firstName || lastName || password) {
-      // lookup the users
-      data.read("users", phone, (err, userData) => {
-        if (!err && userData) {
-          // update the fields
-          if (firstName) {
-            userData.firstName = firstName;
-          }
-          if (lastName) {
-            userData.lastName = lastName;
-          }
-          if (password) {
-            userData.password = hash(password);
-          }
+      // verify token
+      let token =
+        typeof requestProperties.headersObject.token === "string"
+          ? requestProperties.headersObject.token
+          : false;
 
-          // store the user
-          data.update("users", phone, userData, (err) => {
-            if (!err) {
-              callback(200, {
-                message: "User updated successfully",
-              });
-            } else {
-              callback(500, {
-                message: "Couldn't connect to the server.",
+      tokenHandler._token.verify(token, phone, (tokenId) => {
+        if (tokenId) {
+          // lookup the users
+          data.read("users", phone, (err, userData) => {
+            if (!err && userData) {
+              // update the fields
+              if (firstName) {
+                userData.firstName = firstName;
+              }
+              if (lastName) {
+                userData.lastName = lastName;
+              }
+              if (password) {
+                userData.password = hash(password);
+              }
+
+              // store the user
+              data.update("users", phone, userData, (err) => {
+                if (!err) {
+                  callback(200, {
+                    message: "User updated successfully",
+                  });
+                } else {
+                  callback(500, {
+                    message: "Couldn't connect to the server.",
+                  });
+                }
               });
             }
+          });
+        } else {
+          callback(403, {
+            message: "Authentication failed!",
           });
         }
       });
@@ -201,23 +230,37 @@ handler._users.delete = (requestProperties, callback) => {
       : false;
 
   if (phone) {
-    // lookup the users
-    data.read("users", phone, (err, userdata) => {
-      if (!err && userdata) {
-        data.delete("users", phone, (err) => {
-          if (!err) {
-            callback(200, {
-              message: "User deleted successfully",
+    // verify token
+    let token =
+      typeof requestProperties.headersObject.token === "string"
+        ? requestProperties.headersObject.token
+        : false;
+
+    tokenHandler._token.verify(token, phone, (tokenId) => {
+      if (tokenId) {
+        // lookup the users
+        data.read("users", phone, (err, userdata) => {
+          if (!err && userdata) {
+            data.delete("users", phone, (err) => {
+              if (!err) {
+                callback(200, {
+                  message: "User deleted successfully",
+                });
+              } else {
+                callback(500, {
+                  message: "Couldn't connect to the server.",
+                });
+              }
             });
           } else {
-            callback(500, {
-              message: "Couldn't connect to the server.",
+            callback(404, {
+              message: "User not found!",
             });
           }
         });
       } else {
-        callback(404, {
-          message: "User not found!",
+        callback(403, {
+          message: "Authentication failed!",
         });
       }
     });
