@@ -11,9 +11,15 @@ const {handleReqRes} = require('./helpers/handleReqRes');
 // const readDataata = require('./checkData/readData');
 // const updateData = require('./checkData/updateData');
 // const deleteData = require('./checkData/deleteData');
+// const { sendTwilioSms } = require('./helpers/notifications');
 
 // App Object - Module Scaffold
 const app = {};
+
+// Check the notifications module
+// sendTwilioSms('01734008228', 'Hey Buddy!', (err) => {
+//     console.log(`Error: ${err}`);
+// })
 
 // Configuration
 app.config = {

@@ -12,7 +12,13 @@ const environments = {};
 environments.staging = {
     port: 3000,
     envName:'staging',
-    secretKey:'svkjkjdsnjsdvnksj'
+    secretKey:'svkjkjdsnjsdvnksj',
+    maxChecks: 5,
+    twilio: {
+        accountSid: 'AC123',
+        authToken: '123',
+        fromPhone: '+123'
+    }
 };
 
 // For Production
@@ -20,6 +26,12 @@ environments.production = {
     port: 5000,
     envName:'production',
     secretKey:'sdjbfoaisfjsdoivns',
+    maxChecks: 5,
+    twilio: {
+        accountSid: 'AC123',
+        authToken: '123',
+        fromPhone: '+123'
+    }
 };
 
 // Determine which environment was passed as a command-line argument
